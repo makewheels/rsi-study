@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RSI 微课 · Agent 怎样从经验中学习</title>
+<style>
+:root{color-scheme:light;--ink:#182c28;--paper:#f5f4eb;--accent:#206155;--line:#c8d4c9}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.75 system-ui,sans-serif}main{max-width:740px;margin:auto;padding:32px 20px 68px}
+header{background:#183730;color:#f7f6eb;border-radius:20px;padding:clamp(24px,6vw,48px)}h1{font-size:clamp(32px,6vw,48px);line-height:1.15;margin:8px 0 16px}h2{line-height:1.35;margin-top:0}header p{margin-bottom:0}
+section{margin-top:22px;padding:clamp(18px,4vw,28px);border:1px solid var(--line);border-radius:16px;background:#fffdf7}p{margin:0 0 14px}.example{background:#edf3eb;padding:12px 16px;border-radius:8px}a{color:var(--accent)}fieldset{padding:0;border:0;margin:20px 0 10px;min-width:0}legend{font-weight:650;margin-bottom:8px}label{display:block;padding:7px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;cursor:pointer}label:has(:checked){background:#dcece3;border-color:var(--accent)}button{background:var(--accent);color:white;padding:8px 14px;border:0;border-radius:8px;font:inherit;cursor:pointer}output{display:block;margin-top:8px}output:empty{display:none}summary{cursor:pointer;font-weight:650}footer{margin-top:26px;font-size:15px}nav{margin-top:18px;display:flex;gap:12px;flex-wrap:wrap}
+</style>
+<main>
+<header>
+<small>自进化 Agent · 约 8 分钟</small>
+<h1>Agent 怎样从经验中学习？</h1>
+<p>用一个购物车故障，练习把修复经验写成 Skill，再测它对新问题有没有帮助。</p>
+</header>
+<nav aria-label="课节"><a href="#skill">经验与 Skill</a><a href="#eval">留出评测</a><a href="#helix">模型与 Harness</a><a href="#practice">动手练习</a></nav>
+<section aria-labelledby="listen"><h2 id="listen">先听 90 秒</h2><audio controls preload="metadata" style="width:100%" src="rsi-study.mp3" aria-label="RSI 微课音频"></audio><p><a href="rsi-study.mp3">打开音频文件</a></p></section>
+<section id="skill">
+<h2>1. 把经验留给下一次任务</h2>
+<p><strong>RSI</strong> 是「递归自我改进」的缩写。每轮留下的变化会成为下一轮的起点。读研究时，可以再追问一句：变化影响的是做任务的能力，还是发现、验证和保留改进的能力？</p>
+<p>Agent 修空购物车时，发现直接改代码容易漏掉折扣回归。它把有效的步骤写成 Skill，之后遇到同类任务就能加载这条方法。Skill 是可执行的做法，最好同时说明何时适用。</p>
+<p class="example"><strong>一条可复用的 Skill</strong><br>修改订单金额计算时，先加一个能复现故障的测试，再做最小改动，最后跑折扣和退款的回归测试。</p>
+<form data-answer="b" data-explain="方法写入可加载的 Skill 后，新会话才能使用它。修对一道题只说明这一次成功。">
+<fieldset><legend>什么操作能让这次经验影响一个全新的会话？</legend>
+<label><input type="radio" name="answer" value="a" required> 在这次回复中多检查一遍</label>
+<label><input type="radio" name="answer" value="b"> 保存触发条件和验证步骤，并在同类任务中加载</label>
+<label><input type="radio" name="answer" value="c"> 直接复用这次的代码改动</label>
+</fieldset><button>提交答案</button><output aria-live="polite"></output>
+</form>
+</section>
+<section id="eval">
+<h2>2. 用新题验证 Skill</h2>
+<p>拿没参与写 Skill 的题来对照。固定模型、工具和预算，让两组都做同一批题，只改变是否加载 Skill。记下修复成功率、回归失败数和耗时，再决定是否保留。</p>
+<p class="example"><strong>留出任务</strong><br>用空购物车的问题提炼 Skill。把退款金额、叠加优惠和运费边界留到评测时再用。</p>
+<form data-answer="c" data-explain="两组都做相同的新题，只切换 Skill，才更容易看出差别来自哪里。">
+<fieldset><legend>哪种实验更能说明 Skill 对新问题有效？</legend>
+<label><input type="radio" name="answer" value="a" required> 用新 Skill 重做原来的空购物车题五遍</label>
+<label><input type="radio" name="answer" value="b"> 给启用 Skill 的组更多时间，再比较成功率</label>
+<label><input type="radio" name="answer" value="c"> 让两组做同一批留出任务，固定预算，只切换 Skill</label>
+</fieldset><button>提交答案</button><output aria-live="polite"></output>
+</form>
+</section>
+<section id="helix">
+<h2>3. 模型和 Harness 怎样一起改进</h2>
+<p>Harness 是模型做事时用的运行框架，决定如何组织提示、工具和执行流程。HELIX 的思路是让同一个模型试用多套 Harness，将验证过的成功、失败和改动记录整理成可训练的数据，再为更新后的模型重新评估 Harness。</p>
+<p class="example"><strong>回到购物车</strong><br>同一个模型用两套流程修复相同的故障。一个补丁修了空购物车却破坏折扣，另一个通过了两类测试。这对带有验证结果的轨迹可以用于构建训练样本。</p>
+<form data-answer="a" data-explain="论文评估了一轮代码修复并展示了如何构建训练记录。要判断持续多轮有没有收益，还需要继续做对照实验。">
+<fieldset><legend>HELIX 论文的一轮实验直接支持哪个结论？</legend>
+<label><input type="radio" name="answer" value="a" required> 能比较不同 Harness，并从验证过的轨迹构建训练记录</label>
+<label><input type="radio" name="answer" value="b"> 每轮训练后模型都会变强</label>
+<label><input type="radio" name="answer" value="c"> 只要持续调整，任何任务的表现都会提高</label>
+</fieldset><button>提交答案</button><output aria-live="polite"></output>
+</form>
+</section>
+<section id="tutor">
+<h2>加试 · 哪些题算做过？</h2>
+<p>本题根据 DeepTutor 的出题草稿改写。</p>
+<form data-answer="b" data-explain="留出题要在编写和调整 Skill 时保持隔离。换个说法重做旧题，主要测到的还是熟悉场景。">
+<fieldset><legend>你已用「空购物车」「叠加优惠」两种故障调过 Skill。下列哪一组最适合首次检验它能否迁移？</legend>
+<label><input type="radio" name="answer" value="a" required> 空购物车换成另一种输入格式，再重做一次叠加优惠</label>
+<label><input type="radio" name="answer" value="b"> 用之前未见的部分退款和免运费门槛故障，测试前封存题目与预期结果</label>
+<label><input type="radio" name="answer" value="c"> 先公开候选新题，等 Skill 针对它们调好了再测</label>
+</fieldset><button>提交答案</button><output aria-live="polite"></output>
+</form>
+</section>
+<section id="practice">
+<h2>动手练习 · 给自己的 Agent 写一条 Skill</h2>
+<p>选一个你遇过两次的问题，写下触发条件、一条操作步骤和一个能验证成功的信号。再列出两道测试题，至少一道从未用来写这条 Skill。</p>
+<details><summary>展开参考做法</summary><p>例如整理视频时遇到重名。先用时长和文件哈希识别重复，再让人工核对。留出两种情况来测，一种是同名但内容不同，另一种是内容相同但文件名不同。对比启用 Skill 前后的误判数。</p></details>
+</section>
+<footer>
+<p>极客时间《自进化 Agent 工程实战》 · 第 10 讲 · 递归自我改进 · 第 15 讲 · Skill 学习 · 第 18 讲 · 业务 Eval</p>
+<p>延伸阅读 · <a href="https://arxiv.org/abs/2608.13951">HELIX 论文</a> · <a href="https://github.com/HKUDS/DeepTutor">DeepTutor 项目</a></p>
+</footer>
+</main>
+<script>
+for (const form of document.querySelectorAll("form[data-answer]")) {
+  const feedback = form.querySelector("output");
+  form.addEventListener("change", () => { feedback.textContent = ""; });
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const correct = new FormData(form).get("answer") === form.dataset.answer;
+    feedback.textContent = (correct ? "答对了。 " : "再想一步。 ") + form.dataset.explain;
+  });
+}
+</script>
+</html>
