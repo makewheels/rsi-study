@@ -8,14 +8,15 @@
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.75 system-ui,sans-serif}main{max-width:740px;margin:auto;padding:32px 20px 68px}
 header{background:#183730;color:#f7f6eb;border-radius:20px;padding:clamp(24px,6vw,48px)}h1{font-size:clamp(32px,6vw,48px);line-height:1.15;margin:8px 0 16px}h2{line-height:1.35;margin-top:0}header p{margin-bottom:0}
 section{margin-top:22px;padding:clamp(18px,4vw,28px);border:1px solid var(--line);border-radius:16px;background:#fffdf7}p{margin:0 0 14px}.example{background:#edf3eb;padding:12px 16px;border-radius:8px}a{color:var(--accent)}fieldset{padding:0;border:0;margin:20px 0 10px;min-width:0}legend{font-weight:650;margin-bottom:8px}label{display:block;padding:7px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;cursor:pointer}label:has(:checked){background:#dcece3;border-color:var(--accent)}button{background:var(--accent);color:white;padding:8px 14px;border:0;border-radius:8px;font:inherit;cursor:pointer}output{display:block;margin-top:8px}output:empty{display:none}summary{cursor:pointer;font-weight:650}footer{margin-top:26px;font-size:15px}nav{margin-top:18px;display:flex;gap:12px;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;text-align:left}th,td{border-bottom:1px solid var(--line);padding:7px 8px}pre{white-space:pre-wrap;background:#edf3eb;border-radius:8px;padding:12px 16px}
 </style>
 <main>
 <header>
-<small>自进化 Agent · 约 8 分钟</small>
+<small>自进化 Agent · 7 讲 · 约 25 分钟</small>
 <h1>Agent 怎样从经验中学习？</h1>
-<p>用一个购物车故障，练习把修复经验写成 Skill，再测它对新问题有没有帮助。</p>
+<p>从购物车的一次故障出发，走完记忆维护、Skill 演化、离线评测和研究论文阅读。最后设计一次可以复跑的对照实验。</p>
 </header>
-<nav aria-label="课节"><a href="#skill">经验与 Skill</a><a href="#eval">留出评测</a><a href="#helix">模型与 Harness</a><a href="#practice">动手练习</a></nav>
+<nav aria-label="课节"><a href="#skill">1 经验</a><a href="#memory">2 记忆</a><a href="#evolution">3 Skill</a><a href="#eval">4 对照</a><a href="#dataset">5 数据</a><a href="#offline">6 优化</a><a href="#helix">7 HELIX</a><a href="#practice">综合实验</a></nav>
 <section aria-labelledby="listen"><h2 id="listen">先听 90 秒</h2><audio controls preload="metadata" style="width:100%" src="rsi-study.mp3" aria-label="RSI 微课音频"></audio><p><a href="rsi-study.mp3">打开音频文件</a></p></section>
 <section id="skill">
 <h2>1. 把经验留给下一次任务</h2>
@@ -30,10 +31,17 @@ section{margin-top:22px;padding:clamp(18px,4vw,28px);border:1px solid var(--line
 </fieldset><button>提交答案</button><output aria-live="polite"></output>
 </form>
 </section>
+<section id="memory"><h2>2. 复盘与记忆维护</h2><p>一次任务会留下输入、工具调用、输出和验证结果，这份记录通常叫 <strong>运行轨迹（rollout）</strong>。复盘时可以把轨迹里有长期价值的部分留下。事实记忆回答「现在是什么」，Skill 回答「这类任务怎么做」，原始轨迹则供以后核对。</p>
+<p class="example"><strong>购物车案例</strong><br>付款规则迁移后，运费阈值由配置服务按地区返回。旧记忆却写着「满 99 元免运费」。这次修复可以把旧数字标记为已废弃，把「先查生效配置及地区」写入流程。一次工具调用结果只对应当时的环境，后续还要能定位它的版本。</p>
+<p><strong>判断是否值得记下来。</strong> 来源可信、以后还能用、适用范围明确的内容才值得长期保存。遇到两条冲突记忆时，先核对来源和生效时间，再更新对应条目，避免下次同时命中两条规则。</p><form data-answer="b" data-explain="一次促销是有边界的事实，后续任务依然要按具体地区和时间查配置。"><fieldset><legend>查到本周促销免运费，怎样留下最有用的记录？</legend><label><input type="radio" name="answer" value="a" required> 永久写入「所有订单免运费」</label><label><input type="radio" name="answer" value="b" required> 记录适用地区、有效时间和配置入口</label><label><input type="radio" name="answer" value="c" required> 覆盖所有运费相关规则</label></fieldset><button>提交答案</button><output aria-live="polite"></output></form><form data-answer="c" data-explain="下次检索应优先命中新事实，同时保留可追溯的历史证据。"><fieldset><legend>旧记忆与新配置冲突，确认配置已正式迁移后应怎么办？</legend><label><input type="radio" name="answer" value="a" required> 保留两条互相矛盾的规则供随机选择</label><label><input type="radio" name="answer" value="b" required> 仅重答当前问题</label><label><input type="radio" name="answer" value="c" required> 更新活跃记忆并记录新来源，旧记录留作追溯</label></fieldset><button>提交答案</button><output aria-live="polite"></output></form></section>
+<section id="evolution"><h2>3. 让 Skill 增量演化</h2><p>Skill 可以先覆盖最常见的工作，再根据反复出现的失败逐步修改。一个好改动应能写清触发条件、执行步骤、退出条件和可验证结果。多份相似 Skill 会争抢同一任务，合并前应检查各自独有的分支。</p>
+<p class="example"><strong>从 v1 到 v2</strong><br>v1 每次只验证一种折扣。多条轨迹显示，当满减与优惠券叠加时，扣减顺序常写反。v2 只在存在两个及以上优惠时增加「列出叠加顺序并运行交叉用例」。简单购物车保留原来的短路径。</p>
+<p><strong>怎样管理库。</strong> 给候选版本记录失败证据和对照结果。若两个条目触发范围重叠，先比较哪些步骤共用、哪些结果需要单独验证，再决定合并或归档。</p><form data-answer="b" data-explain="有条件的增量规则对应已知问题，也让简单任务和复合任务各自可测。"><fieldset><legend>多个任务出现同一种叠加顺序错误，哪个修改最合适？</legend><label><input type="radio" name="answer" value="a" required> 任何购物车任务都加一套完整促销审计</label><label><input type="radio" name="answer" value="b" required> 在多重优惠分支加入叠加验证，并保留旧路径做回归</label><label><input type="radio" name="answer" value="c" required> 为每条失败日志新增一份内容相似的 Skill</label></fieldset><button>提交答案</button><output aria-live="polite"></output></form><form data-answer="a" data-explain="使用频率无法替代对独有能力的核查，合并需要保住有效分支。"><fieldset><legend>两份 Skill 描述相近，但其中一份有海外税费分支。整理时第一步做什么？</legend><label><input type="radio" name="answer" value="a" required> 对照触发条件和独有步骤，再决定合并后的结构</label><label><input type="radio" name="answer" value="b" required> 直接删除运行次数少的</label><label><input type="radio" name="answer" value="c" required> 把两份合并后删除全部分支</label></fieldset><button>提交答案</button><output aria-live="polite"></output></form></section>
 <section id="eval">
-<h2>2. 用新题验证 Skill</h2>
+<h2>4. 用新题和旧题验证 Skill</h2>
 <p>拿没参与写 Skill 的题来对照。固定模型、工具和预算，让两组都做同一批题，只改变是否加载 Skill。记下修复成功率、回归失败数和耗时，再决定是否保留。</p>
 <p class="example"><strong>留出任务</strong><br>用空购物车的问题提炼 Skill。把退款金额、叠加优惠和运费边界留到评测时再用。</p>
+<p>旧任务用来查回归，新任务用来测迁移。两类分数单独报告。新题进步而旧任务退步时，先看退步是否触及预设的关键保障项。</p>
 <form data-answer="c" data-explain="两组都做相同的新题，只切换 Skill，才更容易看出差别来自哪里。">
 <fieldset><legend>哪种实验更能说明 Skill 对新问题有效？</legend>
 <label><input type="radio" name="answer" value="a" required> 用新 Skill 重做原来的空购物车题五遍</label>
@@ -42,10 +50,17 @@ section{margin-top:22px;padding:clamp(18px,4vw,28px);border:1px solid var(--line
 </fieldset><button>提交答案</button><output aria-live="polite"></output>
 </form>
 </section>
+<section id="dataset"><h2>5. 把运行轨迹变成可重跑的题</h2><p>一条线上轨迹可以提供题目线索。把它整理成评测题，需要固定输入、依赖数据或工具快照、独立核验的预期结果和评分规则，再按任务族划分开发集和留出集。</p>
+<p class="example"><strong>可以复跑的退款案例</strong><br>输入是「订单原价 120 元，满减 20 元，两件商品各占一半，退其中一件」。题目附当时的优惠分摊规则快照。验收比较退款金额和账单一致性，评审用快照独立标注。写 Skill 时把这一组退款场景封存，避免相似记录跨到留出集。</p>
+<p><strong>区分验证信号。</strong> 工具调用成功只说明工具执行了。任务是否完成，要查退款金额、状态和不应被改变的订单记录。对外整理材料时只分享脱敏案例和可公开结果。</p><form data-answer="b" data-explain="固定关键依赖和独立标注，才能让两个版本在同一条件下重跑。"><fieldset><legend>历史订单轨迹今天已无法重现，主要应补哪一项？</legend><label><input type="radio" name="answer" value="a" required> 更流畅的最终回复</label><label><input type="radio" name="answer" value="b" required> 当时的订单及规则快照，加独立核验的预期结果</label><label><input type="radio" name="answer" value="c" required> 直接拿旧答案当标准</label></fieldset><button>提交答案</button><output aria-live="polite"></output></form><form data-answer="a" data-explain="高度相似的题分到两边容易泄漏，测到的成绩会偏高。"><fieldset><legend>同一个退款故障复制成五条，仅修改订单号。如何划分？</legend><label><input type="radio" name="answer" value="a" required> 按同一任务族归到同一个集合</label><label><input type="radio" name="answer" value="b" required> 随机分别放到开发集和留出集</label><label><input type="radio" name="answer" value="c" required> 先全部用于调 Skill，再把其中一条作为留出题</label></fieldset><button>提交答案</button><output aria-live="polite"></output></form></section>
+<section id="offline"><h2>6. 用离线反馈搜索更好的 Skill</h2><p>手工修改只有一个候选。离线优化可以从不同失败轨迹中提出多份候选，再在固定预算内反复比较。以课程介绍的 GEPA 为例，反馈可以包含对错分数和运行细节，帮助提出下一版修改。</p>
+<p class="example"><strong>两个候选</strong><br>候选 A 优先修复叠加顺序，候选 B 优先检查退款边界。开发集上 A、B 各自擅长不同任务。保留各有优势的候选，按失败反馈继续搜索。候选选定后，在封存的题目上做最终验证。</p>
+<p><strong>把规则写在结果之前。</strong> 先确定搜索预算、评分口径和发布门槛，再跑对照。搜索过程只使用开发反馈，避免反复查看最终成绩后继续调参。</p><form data-answer="b" data-explain="留出结果参与了候选选择，最后的分数无法作为独立估计。"><fieldset><legend>每次看到留出集分数后都改候选，会发生什么？</legend><label><input type="radio" name="answer" value="a" required> 提高最终分数的独立性</label><label><input type="radio" name="answer" value="b" required> 留出集逐渐变成开发集</label><label><input type="radio" name="answer" value="c" required> 只影响执行时间</label></fieldset><button>提交答案</button><output aria-live="polite"></output></form><form data-answer="c" data-explain="相同总分可能掩盖不同能力。任务级结果能指导下一轮修改。"><fieldset><legend>两个候选总分相同，但各自通过的任务不同，下一步怎样做？</legend><label><input type="radio" name="answer" value="a" required> 按最短名字选择</label><label><input type="radio" name="answer" value="b" required> 仅保留先出现的候选</label><label><input type="radio" name="answer" value="c" required> 比较各任务族的得失，保留有互补优势的候选继续分析</label></fieldset><button>提交答案</button><output aria-live="polite"></output></form></section>
 <section id="helix">
-<h2>3. 模型和 Harness 怎样一起改进</h2>
+<h2>7. 模型和 Harness 怎样一起改进</h2>
 <p>Harness 是模型做事时用的运行框架，决定如何组织提示、工具和执行流程。HELIX 的思路是让同一个模型试用多套 Harness，将验证过的成功、失败和改动记录整理成可训练的数据，再为更新后的模型重新评估 Harness。</p>
 <p class="example"><strong>回到购物车</strong><br>同一个模型用两套流程修复相同的故障。一个补丁修了空购物车却破坏折扣，另一个通过了两类测试。这对带有验证结果的轨迹可以用于构建训练样本。</p>
+<p><strong>读论文时区分两种提升。</strong> 单个 Harness 的表现回答「部署一套流程能做到多少」。多个候选的合并覆盖率回答「这些流程加起来能解哪些题」，还涉及候选选择和额外算力。论文评估了一轮代码修复，并展示了可以构建的训练记录。<a href="https://arxiv.org/abs/2608.13951">查看实验摘要</a></p>
 <form data-answer="a" data-explain="论文评估了一轮代码修复并展示了如何构建训练记录。要判断持续多轮有没有收益，还需要继续做对照实验。">
 <fieldset><legend>HELIX 论文的一轮实验直接支持哪个结论？</legend>
 <label><input type="radio" name="answer" value="a" required> 能比较不同 Harness，并从验证过的轨迹构建训练记录</label>
@@ -53,6 +68,7 @@ section{margin-top:22px;padding:clamp(18px,4vw,28px);border:1px solid var(--line
 <label><input type="radio" name="answer" value="c"> 只要持续调整，任何任务的表现都会提高</label>
 </fieldset><button>提交答案</button><output aria-live="polite"></output>
 </form>
+<form data-answer="b" data-explain="合并覆盖率反映候选的互补结果。实际上线的成绩取决于如何选择流程和投入多少预算。"><fieldset><legend>五套 Harness 的合并覆盖率很高，准备上线时还要验证什么？</legend><label><input type="radio" name="answer" value="a" required> 任一 Harness 都能达到合并成绩</label><label><input type="radio" name="answer" value="b" required> 用实际选择策略和同等预算，测最终成功率</label><label><input type="radio" name="answer" value="c" required> 只要候选更多，成功率一定持续上涨</label></fieldset><button>提交答案</button><output aria-live="polite"></output></form>
 </section>
 <section id="tutor">
 <h2>加试 · 哪些题算做过？</h2>
@@ -66,12 +82,20 @@ section{margin-top:22px;padding:clamp(18px,4vw,28px);border:1px solid var(--line
 </form>
 </section>
 <section id="practice">
-<h2>动手练习 · 给自己的 Agent 写一条 Skill</h2>
-<p>选一个你遇过两次的问题，写下触发条件、一条操作步骤和一个能验证成功的信号。再列出两道测试题，至少一道从未用来写这条 Skill。</p>
-<details><summary>展开参考做法</summary><p>例如整理视频时遇到重名。先用时长和文件哈希识别重复，再让人工核对。留出两种情况来测，一种是同名但内容不同，另一种是内容相同但文件名不同。对比启用 Skill 前后的误判数。</p></details>
-</section>
+<h2>综合实验 · 你会发布 v2 吗？</h2>
+<p>你负责购物车 Agent。v1 处理基础折扣，v2 加了多优惠时的顺序检查。团队提前约定，退款金额与旧单优惠都属于关键回归项。两版在相同模型、工具、运行次数和预算下各跑一轮，得到下面的教学数据。</p>
+<table><thead><tr><th scope="col">任务组</th><th scope="col">v1</th><th scope="col">v2</th></tr></thead><tbody><tr><th scope="row">旧任务</th><td>8 / 8</td><td>7 / 8</td></tr><tr><th scope="row">留出的新任务</th><td>2 / 5</td><td>4 / 5</td></tr><tr><th scope="row">退款关键回归</th><td>0</td><td>1</td></tr></tbody></table>
+<p>先写下你的发布决定和理由。再用下面四行设计下一轮实验，可以直接复制到自己的笔记里。</p>
+<pre><code>改动约束：
+需要覆盖的旧任务和新任务：
+对照条件：
+发布门槛：</code></pre>
+<details><summary>展开参考决定和下一轮实验</summary>
+<p>先留用 v1。总通过数从 10 提高到 11，但 v2 触发了预先规定的关键退款回归。把失败轨迹收进开发集，修正 v2 的触发范围，补测退款回归。随后在新封存的多优惠、退款和地区配置任务上重跑对照。只有关键回归为零且新任务达到预设门槛，才采用新版。</p>
+<p>如果需要更稳定的证据，对同一道题重复运行并记录随机性、耗时和工具调用数。报告关键错误的例子及对应的规则，方便复盘。</p>
+</details></section>
 <footer>
-<p>极客时间《自进化 Agent 工程实战》 · 第 10 讲 · 递归自我改进 · 第 15 讲 · Skill 学习 · 第 18 讲 · 业务 Eval</p>
+<p>极客时间《自进化 Agent 工程实战》 · 第 10–12 讲（原生学习与记忆）、第 15–20 讲（Skill 与评测）</p>
 <p>延伸阅读 · <a href="https://arxiv.org/abs/2608.13951">HELIX 论文</a> · <a href="https://github.com/HKUDS/DeepTutor">DeepTutor 项目</a></p>
 </footer>
 </main>
